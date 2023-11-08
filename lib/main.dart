@@ -1,17 +1,21 @@
 import 'dart:async';
 
+import 'package:apphud/apphud.dart';
 import 'package:finland/managers/finland_route_manager.dart';
 import 'package:finland/managers/place_manager.dart';
 import 'package:finland/managers/premium_manager.dart';
 import 'package:finland/screens/screens.dart';
 import 'package:finland/services/preferences_services.dart';
+import 'package:finland/utils/links.dart';
 import 'package:finland/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:koshumcha/koshumcha.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'managers/news_manager.dart';
 import 'screens/onboardings/onboardings.dart';
@@ -19,10 +23,18 @@ import 'screens/onboardings/onboardings.dart';
 late final PreferencesService service;
 late final SharedPreferences prefs;
 
+Future<void> launchUri(String url) async {
+  if (!await launchUrl(Uri.parse(url))) {
+    throw Exception('Could not launch $url');
+  }
+}
+
+
 void main() => runZonedGuarded(() async {
       WidgetsFlutterBinding.ensureInitialized();
       prefs = await SharedPreferences.getInstance();
       service = PreferencesService(preferences: prefs);
+      await Apphud.start(apiKey: Links.apphud);
       runApp(
         ScreenUtilInit(
           designSize: const Size(390, 844),
@@ -30,7 +42,7 @@ void main() => runZonedGuarded(() async {
             BuildContext context,
             Widget? child,
           ) =>
-              const MyApp(),
+          const MyApp(),
         ),
       );
     }, (error, stack) {
@@ -226,9 +238,15 @@ class _MyAppState extends State<MyApp> {
               PremiumManager(preferencesService: service),
         ),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        routerConfig: _router,
+      child: MaterialApp(
+        home: KoshumchaScreen(
+          preferences: prefs,
+          baseUrlWithoutHttp: Links.url,
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: _router,
+          ),
+        ),
       ),
     );
   }
