@@ -91,7 +91,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     SizedBox(height: 48.h),
                     CustomButton1(
                       onTap: _onBuyPremium,
-                      text: 'BUY PREMIUM',
+                      text: 'BUY PREMIUM FOR \$0.99/MONTH',
                     ),
                     SizedBox(height: 16.h),
                     Row(
